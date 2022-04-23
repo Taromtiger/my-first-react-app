@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import ClassCounter from "./components/ClassCounter";
 import Counter from "./components/counter";
 import "./styles/App.css"
@@ -6,59 +6,73 @@ import PostItem from "./components/PostItem";
 import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
 import MyInput from "./components/UI/input/MyInput";
+import PostForm from "./components/PostForm";
+import MySelect from "./components/UI/select/MySelect";
+import PostFilter from "./components/PostFilter";
+import MyModal from "./components/UI/MyModal/MyModal";
+import { usePosts } from "./hooks/usePosts";
+import axios from "axios";
+import PostService from "./API/PostService";
 
 function App() {
 
-  const [posts, setPosts] = useState([
-    {id: 1, title: 'Javascript 1', body: 'Description'},
-    {id: 2, title: 'Javascript 2', body: 'Description'},
-    {id: 3, title: 'Javascript 3', body: 'Description'},
-  ]);
+  const [posts, setPosts] = useState([]);
+  const [filter, setFilter] = useState({ sort: '', query: '' })
+  const [modal, setModal] = useState(false);
+  const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
+  const [isPostLoading, setIsPostLoading] = useState(false);
 
-  const [title, setTitle] = useState('')
-  const [body, setBody] = useState('')
+  useEffect(() => {
+    fetchPosts()
+  }, [])
 
-  const addNewPost = (e) => {
-    e.preventDefault()  
 
-    const newPost = {
-      id: Date.now(),
-      title,
-      body
-    }
+  const createPost = (newPost) => {
     setPosts([...posts, newPost])
-    setTitle('')
-    setBody('')
-
+    setModal(false)
   }
+
+
+  async function fetchPosts() {
+    setIsPostLoading(true);
+    setTimeout(async () => {
+      const posts = await PostService.getAll();
+      setPosts(posts)
+      setIsPostLoading(false);
+    }, 1000)
+  }
+
+
+  // Отримуємо post із дочірнього компонента
+  const removePost = (post) => {
+    setPosts(posts.filter(p => p.id !== post.id))
+  }
+
 
   return (
     <div className="App">
 
-      <form>
-        {/*Керований компонент*/}
-        <MyInput
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          type="text"
-          placeholder="Назва поста"
-        />
+      <MyButton style={{ marginTop: 30 }} onClick={() => setModal(true)}>
+        Створити пост
+      </MyButton>
 
-        {/*Некерований/Неконтрольовани й компонент*/}
-        <MyInput 
-          value={body}
-          onChange={e => setBody(e.target.value)}
-          type="text" 
-          placeholder="Опис поста"
-        />
+      <MyModal visible={modal} setVisible={setModal}>
+        <PostForm create={createPost} />
+      </MyModal>
 
-        <MyButton onClick={addNewPost}>Створити пост</MyButton>
+      <hr style={{ margin: '15px 0' }} />
 
-      </form>
+      <PostFilter
+        filter={filter}
+        setFilter={setFilter}
+      />
 
-      <PostList posts={posts} title="Пости про JS"/>
+      {isPostLoading
+        ? <h1 style={{ textAlign: 'center' }}>Відбувається завантаження...</h1>
+        : <PostList remove={removePost} posts={sortedAndSearchedPosts} title="Пости про JS" />
+      }
 
-    </div>
+    </div >
   );
 }
 

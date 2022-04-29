@@ -6,32 +6,45 @@
 
 #root {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .App {
   width: 800px;
-} 
+}
 
 .post {
   display: flex;
   padding: 15px;
   border: 2px solid teal;
+  border-radius: 4px;
   margin-top: 15px;
   justify-content: space-between;
   align-items: center;
 }
 
+.post__btns {
+  display: flex;
+}
+
+.post__btns:not(:last-child) {
+  margin-right: 10px;
+}
+
 .post-enter {
   transform: translateX(-350px);
 }
+
 .post-enter-active {
   transform: translateX(0px);
   transition: all 500ms ease-in;
 }
+
 .post-exit {
   opacity: 1;
 }
+
 .post-exit-active {
   transform: translateX(-350px);
   transition: all 500ms ease-in;
@@ -57,4 +70,34 @@
   border: 2px solid orange;
   border-radius: 4px;
   font-weight: bold;
+}
+
+.navbar {
+  font-family: Arial, Helvetica, sans-serif;
+  height: 50px;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  padding: 0 50px;
+  background-color: lightgray;
+}
+
+.navbar__links {
+  padding: 5px 15px;
+  border: 1px solid teal;
+  border-radius: 4px;
+  margin-left: auto;
+  text-decoration: none;
+}
+
+.navbar__link {
+  font-size: 16px;
+  color: teal;
+  text-decoration: none;
+}
+
+.navbar__link::after {
+  width: 1px;
+  height: 10px;
+  border: 1px solid teal
 }
